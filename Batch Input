@@ -2,7 +2,7 @@
 " Declaraciones:
 *---------------------------------------------------------------------*
   " Tablas Internas
-  DATA: lt_bdcdata TYPE tab_bdcdata.
+  DATA: lt_bdcdata TYPE tab_bdcdata. 
 
 
 *---------------------------------------------------------------------*
