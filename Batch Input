@@ -1,0 +1,89 @@
+*---------------------------------------------------------------------*
+" Declaraciones:
+*---------------------------------------------------------------------*
+  " Tablas Internas
+  DATA: lt_bdcdata TYPE tab_bdcdata.
+
+
+*---------------------------------------------------------------------*
+" Codigo Principal
+*---------------------------------------------------------------------*
+" Iniciar una Pantalla 
+PERFORM bdc_dynpro USING lt_bdcdata 'SAPMM06E' '0300' .
+
+" Posicionar el Cursos en la pantalla
+PERFORM bdc_field USING lt_bdcdata 'BDC_CURSOR' 'RM06E-ASART'.
+
+" Accion de Botones
+PERFORM bdc_field USING lt_bdcdata 'BDC_OKCODE' '=KOPF' .
+
+" Informar un campo de la pantalla actual
+PERFORM bdc_field USING lt_bdcdata 'RM06E-ASART' ls_cabecera-bsart.
+
+PERFORM bdc_transaction USING 'ME41' lt_bdcdata
+                     CHANGING po_ebeln.
+
+*---------------------------------------------------------------------*
+" Sub-Rutinas
+*---------------------------------------------------------------------*
+
+*---------------------------------------------------------------------*
+FORM bdc_dynpro USING it_bdcdata TYPE tab_bdcdata
+                      p_screen_name
+                      p_screen_num.
+
+  DATA: ls_bdcdata TYPE bdcdata.
+
+  ls_bdcdata-program  = p_screen_name.
+  ls_bdcdata-dynpro   = p_screen_num.
+  ls_bdcdata-dynbegin = 'X'.
+
+  APPEND ls_bdcdata TO it_bdcdata.
+
+  CLEAR ls_bdcdata.
+
+ENDFORM.
+
+*---------------------------------------------------------------------*
+FORM bdc_field USING it_bdcdata TYPE tab_bdcdata
+                     fname
+                     fval.
+
+  DATA: ls_bdcdata TYPE bdcdata.
+
+  ls_bdcdata-fnam = fname.
+  ls_bdcdata-fval = fval.
+
+  APPEND ls_bdcdata TO it_bdcdata.
+
+  CLEAR ls_bdcdata.
+
+ENDFORM.
+
+*---------------------------------------------------------------------*
+FORM bdc_transaction USING tcde
+                           it_bdcdata TYPE tab_bdcdata
+                  CHANGING cv_ebeln   TYPE ebeln.
+
+  DATA: lv_mode   TYPE char01 VALUE 'N',
+        lv_update TYPE char01 VALUE 'S',
+        lv_back   TYPE xfeld VALUE 'X'.
+
+  DATA: lt_message TYPE TABLE OF bdcmsgcoll.
+
+*---------------------------------------------------------------------*
+  EXPORT lv_back TO MEMORY ID 'LV_BACK'.
+*---------------------------------------------------------------------*
+
+  CALL TRANSACTION tcde USING it_bdcdata MODE lv_mode UPDATE lv_update  MESSAGES INTO lt_message.
+
+  LOOP AT lt_message INTO DATA(ls_message) WHERE msgtyp EQ 'S'
+                                             AND msgid  EQ '06'
+                                             AND msgnr  EQ '017'.
+
+    cv_ebeln = ls_message-msgv2.
+  ENDLOOP.
+
+  FREE MEMORY ID 'LV_BACK'.
+
+ENDFORM.
