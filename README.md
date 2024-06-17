@@ -1,3 +1,7 @@
+```ABAP
+DATA: lv_prueba TYPE majos.
+```
+
 ### Links on useful SAP tables
 
 - Function to read tables https://www.se80.co.uk/sapfms/r/rfc_/rfc_read_table.htm
