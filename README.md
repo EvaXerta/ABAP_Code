@@ -1,5 +1,7 @@
 ```ABAP
 DATA: lv_prueba TYPE majos.
+
+*Feliz martes!
 ```
 
 ### Links on useful SAP tables
